@@ -685,6 +685,9 @@ load _helpers
   local actual=$(helm template \
       -x templates/server-statefulset.yaml  \
       --set 'global.federation.enabled=true' \
+      --set 'global.tls.enabled=true' \
+      --set 'meshGateway.enabled=true' \
+      --set 'connectInject.enabled=true' \
       . | tee /dev/stderr |
       yq '.spec.template.spec.containers[0].command | join(" ") | contains("connect { enable_mesh_gateway_wan_federation = true }")' | tee /dev/stderr)
   [ "${actual}" = "true" ]

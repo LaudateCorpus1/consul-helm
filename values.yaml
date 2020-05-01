@@ -198,6 +198,25 @@ global:
       secretName: null
       secretKey: null
 
+  # Settings related to federating with other Consul datacenter.
+  federation:
+    # **Experimental: Currently this is only available in Consul 1.8.0-beta.**
+    # If enabled, this datacenter will be federation-capable. Only federation
+    # through mesh gateways is supported.
+    # Mesh gateways and servers will be configured to allow federation.
+    # Requires tls.enabled, meshGateway.enabled and connectInject.enabled
+    # to be true.
+    enabled: false
+
+    # If true, the chart will create a federation Kubernetes secret that can be imported
+    # into secondary datacenters so they can federate with this datacenter. The
+    # secret contains all the information secondary datacenters need to contact
+    # and authenticate with this datacenter. This should only be set to true
+    # in your primary datacenter. The secret name is
+    # <global.name>-federation (if setting global.name), otherwise
+    # <helm-release-name>-consul-federation.
+    createFederationSecret: false
+
 # Server, when enabled, configures a server cluster to run. This should
 # be disabled if you plan on connecting to a Consul cluster external to
 # the Kube cluster.
