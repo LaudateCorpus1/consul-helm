@@ -2,19 +2,19 @@
 
 load _helpers
 
-@test "createFederationSecret/ClusterRole: disabled by default" {
+@test "createFederationSecret/Role: disabled by default" {
   cd `chart_dir`
   local actual=$(helm template \
-      -x templates/create-federation-secret-clusterrole.yaml  \
+      -x templates/create-federation-secret-role.yaml  \
       . | tee /dev/stderr |
       yq 'length > 0' | tee /dev/stderr)
   [ "${actual}" = "false" ]
 }
 
-@test "createFederationSecret/ClusterRole: enabled with global.federation.createFederationSecret=true" {
+@test "createFederationSecret/Role: enabled with global.federation.createFederationSecret=true" {
   cd `chart_dir`
   local actual=$(helm template \
-      -x templates/create-federation-secret-clusterrole.yaml  \
+      -x templates/create-federation-secret-role.yaml  \
       --set 'global.federation.createFederationSecret=true' \
       --set 'global.federation.enabled=true' \
       --set 'global.tls.enabled=true' \
@@ -28,10 +28,10 @@ load _helpers
 #--------------------------------------------------------------------
 # global.acls.manageSystemACLs
 
-@test "createFederationSecret/ClusterRole: allows read access for replication token with global.acls.manageSystemACLs=true" {
+@test "createFederationSecret/Role: allows read access for replication token with global.acls.manageSystemACLs=true" {
   cd `chart_dir`
   local actual=$(helm template \
-      -x templates/create-federation-secret-clusterrole.yaml  \
+      -x templates/create-federation-secret-role.yaml  \
       --set 'global.federation.createFederationSecret=true' \
       --set 'global.federation.enabled=true' \
       --set 'global.tls.enabled=true' \
@@ -47,10 +47,10 @@ load _helpers
 #--------------------------------------------------------------------
 # global.enablePodSecurityPolicies
 
-@test "createFederationSecret/ClusterRole: allows podsecuritypolicies access with global.enablePodSecurityPolicies=true" {
+@test "createFederationSecret/Role: allows podsecuritypolicies access with global.enablePodSecurityPolicies=true" {
   cd `chart_dir`
   local actual=$(helm template \
-      -x templates/create-federation-secret-clusterrole.yaml  \
+      -x templates/create-federation-secret-role.yaml  \
       --set 'global.federation.createFederationSecret=true' \
       --set 'global.federation.enabled=true' \
       --set 'global.tls.enabled=true' \
