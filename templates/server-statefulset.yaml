@@ -69,6 +69,10 @@ spec:
             items:
             - key: {{ default "tls.crt" .Values.global.tls.caCert.secretKey }}
               path: tls.crt
+        - name: consul-client-cert-shared
+          hostPath:
+            path: "/tmp/consul-client-cert-shared"
+            type: DirectoryOrCreate
         - name: consul-server-cert
           secret:
             secretName: {{ template "consul.fullname" . }}-server-cert
@@ -125,6 +129,10 @@ spec:
                   key: {{ .Values.global.acls.replicationToken.secretKey | quote }}
             {{- end }}
             {{- include "consul.extraEnvironmentVars" .Values.server | nindent 12 }}
+            {{- range $index, $value := .Values.server.advertiseWanAddresses }}
+            - name: ADVERTISE_WAN_ADDRESS_{{ $index }}
+              value: {{ $value | quote }}
+            {{- end }}
           command:
             - "/bin/sh"
             - "-ec"
@@ -133,6 +141,7 @@ spec:
 
               exec /bin/consul agent \
                 -advertise="${POD_IP}" \
+                -advertise-wan="$(eval printf '%s' "\${ADVERTISE_WAN_ADDRESS_${HOSTNAME##*-}}")" \
                 -bind=0.0.0.0 \
                 -bootstrap-expect={{ .Values.server.bootstrapExpect }} \
                 {{- if .Values.global.tls.enabled }}
@@ -143,6 +152,7 @@ spec:
                 -hcl='auto_encrypt = {allow_tls = true}' \
                 {{- end }}
                 {{- if .Values.global.tls.verify }}
+                -hcl='verify_incoming = true' \
                 -hcl='verify_incoming_rpc = true' \
                 -hcl='verify_outgoing = true' \
                 -hcl='verify_server_hostname = true' \
@@ -195,6 +205,9 @@ spec:
             - name: consul-server-cert
               mountPath: /consul/tls/server
               readOnly: true
+            - name: consul-client-cert-shared
+              mountPath: /consul/tls/client
+              readOnly: true
             {{- end }}
             {{- range .Values.server.extraVolumes }}
             - name: userconfig-{{ .name }}
@@ -240,6 +253,8 @@ spec:
                   {{- if .Values.global.tls.enabled }}
                   curl \
                     --cacert /consul/tls/ca/tls.crt \
+                    --cert /consul/tls/client/tls.crt \
+                    --key /consul/tls/client/tls.key \
                     https://127.0.0.1:8501/v1/status/leader \
                   {{- else }}
                   curl http://127.0.0.1:8500/v1/status/leader \
