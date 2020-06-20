@@ -364,6 +364,7 @@ spec:
             mv {{ .Values.global.datacenter }}-client-{{ .Values.global.domain }}-0.pem tls.crt
             mv {{ .Values.global.datacenter }}-client-{{ .Values.global.domain }}-0-key.pem tls.key
             cp * /consul/tls/client-shared/
+            cp /consul/tls/ca/cert/tls.crt /consul/tls/client-shared/ca.crt
         volumeMounts:
           - name: consul-client-cert
             mountPath: /consul/tls/client
